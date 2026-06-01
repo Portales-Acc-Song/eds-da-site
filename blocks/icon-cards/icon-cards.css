@@ -21,15 +21,26 @@
 .icon-cards .card-icon {
   order: -1;
   margin-bottom: 1.5rem;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-cards .card-icon p {
+  margin: 0;
+  line-height: 0;
 }
 
 .icon-cards .card-icon img,
 .icon-cards .card-icon svg {
-  width: 64px !important;
-  height: 64px !important;
+  width: 64px;
+  height: 64px;
+  max-width: unset;
   fill: none;
   stroke: #b5a06a;
-  color:#b5a06a
+  color: #b5a06a;
 }
 
 .icon-cards .card-content strong,
