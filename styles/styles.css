@@ -325,11 +325,14 @@ main .section.highlight {
 }
 
 main .accordion {
-  margin-bottom: 40px;
+  margin-bottom: 56px;
 }
 
 main h2 {
-  margin-top: 56px;
-  margin-bottom: 20px;
-  font-weight: 600;
+  margin-top: 64px;
+  margin-bottom: 24px;
+}
+
+main h2 + .accordion {
+  margin-top: 16px;
 }
