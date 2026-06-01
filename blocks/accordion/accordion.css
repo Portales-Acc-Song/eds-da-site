@@ -1,10 +1,11 @@
 .accordion details {
-  border: 1px solid #dadada;
+  border: none;
+  border-bottom: 1px solid #dadada;
 }
 
 /* stylelint-disable-next-line no-descending-specificity */
 .accordion details + details {
-  margin-top: 24px;
+  margin-top: 0;
 }
 
 .accordion details p {
@@ -45,6 +46,7 @@
   line-height: 1;
   text-align: center;
   width: 20px;
+  color: #0072ce;
 }
 
 .accordion details[open] summary::after {
