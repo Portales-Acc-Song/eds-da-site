@@ -25,10 +25,11 @@
 
 .icon-cards .card-icon img,
 .icon-cards .card-icon svg {
-  width: 48px;
-  height: 48px;
+  width: 64px;
+  height: 64px;
   fill: none;
   stroke: #b5a06a;
+  color:#b5a06a
 }
 
 .icon-cards .card-content strong,
