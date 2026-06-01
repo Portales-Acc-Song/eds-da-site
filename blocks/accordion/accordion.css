@@ -59,9 +59,10 @@
   content: '−';
 }
 
-.accordion details .accordion-item-body *:first-child {
+.accordion details .accordion-item-body p {
   /* padding: 4px 0 20px; */
   margin-top: 0;
+  margin-bottom: 0;
 }
 
 .accordion details[open] .accordion-item-body {
