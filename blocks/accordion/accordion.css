@@ -18,18 +18,19 @@
 
 .accordion details summary {
   position: relative;
-  padding: 22px 0;
-  padding-right: 32px;
+  padding: 16px 0;
+  padding-right: 48px;
   cursor: pointer;
   list-style: none;
   overflow: auto;
   transition: background-color 0.2s;
   font-size: 16px;
+  line-height: 1.45;
 }
 
-/*.accordion details[open] summary {
+/* .accordion details[open] summary {
   background-color: var(--light-color);
-}*/
+} */
 
 .accordion details summary:focus,
 .accordion details summary:hover {
@@ -44,7 +45,7 @@
   content: '+';
   position: absolute;
   top: 50%;
-  right: 8px;
+  right: 12px;
   transform: translateY(-50%);
   font-size: 18px;
   font-weight: 400;
@@ -59,7 +60,8 @@
 }
 
 .accordion details .accordion-item-body {
-  padding: 10px 0 20px;
+  padding: 4px 0 20px;
+  line-height: 1.5;
 }
 
 .accordion details[open] .accordion-item-body {
