@@ -28,7 +28,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.40);
+  background: rgb(0, 0, 0 / 40%);
 }
 
 .image-cards .card-content {
@@ -80,7 +80,7 @@
   margin-left: 4px;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .image-cards {
     flex-direction: column;
   }
