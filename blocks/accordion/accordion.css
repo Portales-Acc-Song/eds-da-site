@@ -1,3 +1,7 @@
+.accordion {
+  margin-bottom: 32px;
+}
+
 .accordion details {
   border: none;
   border-bottom: 1px solid #dadada;

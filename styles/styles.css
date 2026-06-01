@@ -323,3 +323,13 @@ main .section.highlight {
   margin: 0;
   padding: 40px 0;
 }
+
+main .accordion {
+  margin-bottom: 40px;
+}
+
+main h2 {
+  margin-top: 56px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
