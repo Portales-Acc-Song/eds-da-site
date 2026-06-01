@@ -28,7 +28,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: rgb(0 0 0 / 0.4);
+  background: rgb(0 0 0 / 40%);
 }
 
 .image-cards .card-content {
