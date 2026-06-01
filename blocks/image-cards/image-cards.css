@@ -28,7 +28,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.40);
+  background: rgb(0, 0, 0, 40%);
 }
 
 .image-cards .card-content {
@@ -66,18 +66,14 @@
 }
 
 .image-cards .card-content a:hover {
-  opacity: 0.8;
+  opacity: 1;
+  gap: 7px;
 }
 
 .image-cards .card-content a::after {
   content: '›';
   font-size: 1.1rem;
   line-height: 1;
-}
-
-.image-cards .card-content a:hover {
-  opacity: 1;
-  gap: 7px;
 }
 
 @media (max-width: 768px) {
