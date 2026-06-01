@@ -61,8 +61,8 @@
 
 .accordion details .accordion-item-body p {
   /* padding: 4px 0 20px; */
-  margin-top: 0;
-  margin-bottom: 0;
+  margin-top: 0 !important;;
+  margin-bottom: 0 !important;;
 }
 
 .accordion details[open] .accordion-item-body {

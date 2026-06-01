@@ -336,7 +336,3 @@ main h2 {
 main h2 + .accordion {
   margin-top: 16px;
 }
-
-main .accordion details .accordion-item-body p {
-  margin-top: 0;
-}
