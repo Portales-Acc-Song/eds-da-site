@@ -59,12 +59,13 @@
   content: '−';
 }
 
-.accordion details .accordion-item-body {
-  padding: 4px 0 20px;
-  line-height: 1.5;
+.accordion details .accordion-item-body *:first-child {
+  /* padding: 4px 0 20px; */
+  margin-top: 0;
 }
 
 .accordion details[open] .accordion-item-body {
   border-top: 1px solid #e6e6e6;
   background-color: var(--background-color);
+  margin-top: 0;
 }
