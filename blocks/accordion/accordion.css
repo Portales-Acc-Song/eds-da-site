@@ -14,8 +14,8 @@
 
 .accordion details summary {
   position: relative;
-  padding: 0 16px;
-  padding-right: 46px;
+  padding: 16px 0;
+  padding-right: 32px;
   cursor: pointer;
   list-style: none;
   overflow: auto;
@@ -28,7 +28,7 @@
 
 .accordion details summary:focus,
 .accordion details summary:hover {
-  background-color: var(--light-color);
+  background-color: transparent;
 }
 
 .accordion details summary::-webkit-details-marker {
@@ -42,7 +42,6 @@
   right: 18px;
   transform: translateY(-50%);
   font-size: 20px;
-  font-weight: bold;
   line-height: 1;
   text-align: center;
   width: 20px;
@@ -50,11 +49,11 @@
 }
 
 .accordion details[open] summary::after {
-  content: '-';
+  content: '−';
 }
 
 .accordion details .accordion-item-body {
-  padding: 0 16px;
+  padding: 8px 0 16px;
 }
 
 .accordion details[open] .accordion-item-body {
