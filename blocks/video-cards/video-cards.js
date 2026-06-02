@@ -11,7 +11,7 @@ export default function decorate(block) {
     const links = contentCell.querySelectorAll('a');
     let videoUrl = '';
     links.forEach((link) => {
-      const href = link.href;
+      const { href } = link;
       if (href.includes('youtube.com') || href.includes('youtu.be')) {
         videoUrl = href;
         link.remove();
