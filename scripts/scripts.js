@@ -126,6 +126,26 @@ export function decorateMain(main) {
   decorateButtons(main);
 }
 
+async function loadTemplate(doc) {
+  const template = doc.head.querySelector('meta[name="template"]')?.content;
+  if (!template) return;
+  const templateName = template.toLowerCase().replace(/\s+/g, '-');
+  try {
+    const cssLoaded = loadCSS(`${window.hlx.codeBasePath}/templates/${templateName}/${templateName}.css`);
+    const decorationComplete = new Promise((resolve) => {
+      import(`../templates/${templateName}/${templateName}.js`)
+        .then((mod) => {
+          if (mod.default) mod.default(doc);
+          resolve();
+        })
+        .catch(() => resolve());
+    });
+    await Promise.all([cssLoaded, decorationComplete]);
+  } catch (error) {
+    // template not found, continue
+  }
+}
+
 /**
  * Loads everything needed to get to LCP.
  * @param {Element} doc The container element
@@ -133,6 +153,7 @@ export function decorateMain(main) {
 async function loadEager(doc) {
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
+  await loadTemplate(doc);
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);
