@@ -1,0 +1,4 @@
+mountpoints:
+  /:
+    url: https://author-p8569-e1463446.adobeaemcloud.com
+    type: markup
