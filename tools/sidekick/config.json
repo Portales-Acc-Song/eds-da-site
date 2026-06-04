@@ -19,11 +19,11 @@
             "id": "tools",
             "title": "Tools",
             "isContainer": true
-        }
+        },
         {
             "containerId": "tools",
             "id": "localize",
-            "title": "Localize"
+            "title": "Localize",
             "environment": ["edit", "dev", "preview", "live", "prod"],
             "url": "https://www.microsoft.com/en-us/translator/business/translator-api/",
             "passReferrer": true
@@ -31,11 +31,10 @@
         {
             "containerId": "tools",
             "id": "youtube",
-            "title": "YouTube"
+            "title": "YouTube",
             "environment": ["edit", "dev", "preview", "live", "prod"],
             "url": "https://developers.google.com/youtube/v3/docs/videos/list",
             "passReferrer": true
         }
         ]
     }
-    
