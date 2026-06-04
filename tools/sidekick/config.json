@@ -1,0 +1,41 @@
+{   "project": "sidekick",
+    "plugins": [
+    {
+        "id": "google-assitant",
+        "title": "Google Assistant",
+        "environment": ["edit", "dev", "preview", "live", "prod"],
+        "url": "https://google.com/search?q=edge+delivery+services",
+        "passConfig": true,
+        "passReferrer": true,
+        "excludePath": [
+            "**/fr/**"],
+        "includePath": [
+            "**.docx**"],
+        "isPalette": true,
+        "paletteRect": "top: 50px; bottom: 10px; right: 10px; left: auto; width: 400px; height: calc(100vh - 60px)"
+        }
+        ,
+        {
+            "id": "tools",
+            "title": "Tools",
+            "isContainer": true
+        }
+        {
+            "containerId": "tools",
+            "id": "localize",
+            "title": "Localize"
+            "environment": ["edit", "dev", "preview", "live", "prod"],
+            "url": "https://www.microsoft.com/en-us/translator/business/translator-api/",
+            "passReferrer": true
+        },
+        {
+            "containerId": "tools",
+            "id": "youtube",
+            "title": "YouTube"
+            "environment": ["edit", "dev", "preview", "live", "prod"],
+            "url": "https://developers.google.com/youtube/v3/docs/videos/list",
+            "passReferrer": true
+        }
+        ]
+    }
+    
