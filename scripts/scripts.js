@@ -11,6 +11,7 @@ import {
   loadSections,
   loadCSS,
 } from './aem.js';
+import { loadThemeStyles, applyThemeFavicon } from './theme.js';
 
 /**
  * Builds hero block and prepends to main in a new section.
@@ -153,6 +154,8 @@ async function loadTemplate(doc) {
 async function loadEager(doc) {
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
+  applyThemeFavicon();
+  await loadThemeStyles();
   await loadTemplate(doc);
   const main = doc.querySelector('main');
   if (main) {

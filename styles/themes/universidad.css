@@ -1,0 +1,27 @@
+/*
+ * Theme: universidad
+ *
+ * Override ONLY custom properties here. Structure and layout stay in
+ * styles/styles.css (shared by every site). Anything not redefined falls back
+ * to the default values declared in styles.css :root.
+ *
+ * Activate by setting the page metadata `theme: universidad` for the site.
+ * This file is loaded eagerly before the page is revealed, so keep it small.
+ */
+
+:root {
+  /* colors */
+  --background-color: white;
+  --light-color: #f3f4f6;
+  --dark-color: #1f2a44;
+  --text-color: #1a1a1a;
+  --link-color: #0a4ea3;
+  --link-hover-color: #073a7a;
+
+  /* fonts */
+  --body-font-family: roboto, roboto-fallback, sans-serif;
+  --heading-font-family: roboto-condensed, roboto-condensed-fallback, sans-serif;
+
+  /* nav height */
+  --nav-height: 72px;
+}
