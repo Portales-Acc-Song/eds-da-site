@@ -1,0 +1,29 @@
+.right-sidebar-layout main {
+  display: block;
+}
+
+.right-sidebar-layout main .section.accordion-container,
+.right-sidebar-layout main .section.image-cards-container {
+  float: left;
+  width: 65%;
+}
+
+.right-sidebar-layout main .section.sidebar {
+  float: right;
+  width: 32%;
+}
+
+.right-sidebar-layout main .section.cards-container,
+.right-sidebar-layout main .section.video-cards-container {
+  clear: both;
+  width: 100%;
+}
+
+@media (width <= 900px) {
+  .right-sidebar-layout main .section.accordion-container,
+  .right-sidebar-layout main .section.image-cards-container,
+  .right-sidebar-layout main .section.sidebar {
+    float: none;
+    width: 100%;
+  }
+}
