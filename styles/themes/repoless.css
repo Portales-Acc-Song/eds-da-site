@@ -1,0 +1,27 @@
+/*
+ * Theme: repoless
+ *
+ * Override ONLY custom properties here. Structure/layout stay in
+ * styles/styles.css (shared). Anything not redefined falls back to the
+ * default values in styles.css :root.
+ *
+ * Activate with the page/site metadata `theme: repoless` (e.g. from DA).
+ * Loaded eagerly before the page is revealed, so keep it small.
+ */
+
+:root {
+  /* colors */
+  --background-color: #f3d681;
+  --light-color: #f1ede1;
+  --dark-color: #2f3a2f;
+  --text-color: #21261f;
+  --link-color: #1b8f5a;
+  --link-hover-color: #136b43;
+
+  /* fonts */
+  --body-font-family: georgia, "Times New Roman", serif;
+  --heading-font-family: georgia, "Times New Roman", serif;
+
+  /* nav height */
+  --nav-height: 80px;
+}
