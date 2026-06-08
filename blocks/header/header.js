@@ -1,5 +1,6 @@
 import { getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
+import { LANGUAGES, getCurrentLang, localizePath } from '../../scripts/languages.js';
 
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 900px)');
@@ -109,6 +110,61 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
 }
 
 /**
+ * Builds the language switcher: a toggle showing the active language and a
+ * dropdown linking to the equivalent page in the other languages.
+ * Real links are used so it works without JS and supports open-in-new-tab.
+ * @returns {Element} the `.nav-language` container
+ */
+function buildLanguageSwitcher() {
+  const current = getCurrentLang();
+  const activeLang = LANGUAGES.find((lang) => lang.code === current);
+
+  const container = document.createElement('div');
+  container.className = 'nav-language';
+
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'nav-language-toggle';
+  toggle.setAttribute('aria-haspopup', 'true');
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.setAttribute('aria-label', `Idioma: ${activeLang.name}. Cambiar idioma`);
+  toggle.innerHTML = `<span class="nav-language-current">${activeLang.label}</span>`;
+
+  const list = document.createElement('ul');
+  list.className = 'nav-language-list';
+  LANGUAGES.filter((lang) => lang.code !== current).forEach((lang) => {
+    const li = document.createElement('li');
+    const link = document.createElement('a');
+    link.href = localizePath(lang.code);
+    link.lang = lang.code;
+    link.hreflang = lang.code;
+    link.textContent = lang.label;
+    link.title = lang.name;
+    li.append(link);
+    list.append(li);
+  });
+
+  container.append(toggle, list);
+
+  const close = () => toggle.setAttribute('aria-expanded', 'false');
+  toggle.addEventListener('click', () => {
+    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+  });
+  document.addEventListener('click', (e) => {
+    if (!container.contains(e.target)) close();
+  });
+  container.addEventListener('keydown', (e) => {
+    if (e.code === 'Escape') {
+      close();
+      toggle.focus();
+    }
+  });
+
+  return container;
+}
+
+/**
  * loads and decorates the header, mainly the nav
  * @param {Element} block The header block element
  */
@@ -136,6 +192,10 @@ export default async function decorate(block) {
     brandLink.className = '';
     brandLink.closest('.button-container').className = '';
   }
+
+  // language switcher, placed in the tools area to the right of the search icon
+  const navTools = nav.querySelector('.nav-tools');
+  if (navTools) navTools.append(buildLanguageSwitcher());
 
   const navSections = nav.querySelector('.nav-sections');
   if (navSections) {
