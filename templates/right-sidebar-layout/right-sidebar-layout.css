@@ -1,28 +1,34 @@
+/*
+ * Layout driven by Section Metadata (Style), NOT by block names.
+ * In the document, set each section's "Style" metadata to:
+ *   - main-container    -> main content column (left, 65%)
+ *   - sidebar-container -> sidebar column (right, 32%)
+ *   - bottom-container  -> full-width band below the columns
+ * This keeps the layout independent of how blocks are named/renamed.
+ */
+
 .right-sidebar-layout main {
   display: block;
 }
 
-.right-sidebar-layout main .section.accordion-container,
-.right-sidebar-layout main .section.image-cards-container {
+.right-sidebar-layout main .section.main-container {
   float: left;
   width: 65%;
 }
 
-.right-sidebar-layout main .section.sidebar {
+.right-sidebar-layout main .section.sidebar-container {
   float: right;
   width: 32%;
 }
 
-.right-sidebar-layout main .section.cards-container,
-.right-sidebar-layout main .section.video-cards-container {
+.right-sidebar-layout main .section.bottom-container {
   clear: both;
   width: 100%;
 }
 
 @media (width <= 900px) {
-  .right-sidebar-layout main .section.accordion-container,
-  .right-sidebar-layout main .section.image-cards-container,
-  .right-sidebar-layout main .section.sidebar {
+  .right-sidebar-layout main .section.main-container,
+  .right-sidebar-layout main .section.sidebar-container {
     float: none;
     width: 100%;
   }
