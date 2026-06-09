@@ -3,6 +3,11 @@ sitemaps:
     # Sustituye al /sitemap.xml autogenerado. NO se pierde contenido real:
     # cada `source` ya incluye TODO su subárbol /uemi/<lang>/*.
     # Solo dejan de aparecer /docs/library/* y /config (páginas de prueba).
+    #
+    # `origin`: host absoluto para las URLs del sitemap. Sin esto salen como
+    # https://undefined/... porque aún no hay dominio de producción configurado.
+    # CAMBIAR por el dominio real de producción cuando exista.
+    origin: https://main--eds-da-site--portales-acc-song.aem.live
     default: es              # añade hreflang="x-default" apuntando a las URLs de ES
     languages:
       es:
