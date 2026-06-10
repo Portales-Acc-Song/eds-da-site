@@ -1,0 +1,27 @@
+sitemaps:
+  uemi:
+    # Sustituye al /sitemap.xml autogenerado. NO se pierde contenido real:
+    # cada `source` ya incluye TODO su subárbol /uemi/<lang>/*.
+    # Solo dejan de aparecer /docs/library/* y /config (páginas de prueba).
+    #
+    # `origin`: host absoluto para las URLs del sitemap. Sin esto salen como
+    # https://undefined/... porque aún no hay dominio de producción configurado.
+    # CAMBIAR por el dominio real de producción cuando exista.
+    origin: https://main--eds-da-site--portales-acc-song.aem.live
+    default: es              # añade hreflang="x-default" apuntando a las URLs de ES
+    languages:
+      es:
+        source: /uemi/es/query-index.json
+        destination: /uemi/es/sitemap.xml
+        hreflang: es
+        alternate: /uemi/es/{path}
+      ca:
+        source: /uemi/ca/query-index.json
+        destination: /uemi/ca/sitemap.xml
+        hreflang: ca
+        alternate: /uemi/ca/{path}
+      en:
+        source: /uemi/en/query-index.json
+        destination: /uemi/en/sitemap.xml
+        hreflang: en
+        alternate: /uemi/en/{path}

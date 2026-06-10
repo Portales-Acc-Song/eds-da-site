@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Índice de sitemaps. Punto de entrada único para buscadores y robots.txt.
+  Apunta a los sitemaps por idioma generados por helix-sitemap.yaml.
+  IMPORTANTE: cuando configuréis el dominio de producción, sustituir el host
+  main--eds-da-site--portales-acc-song.aem.live por el dominio real.
+-->
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://main--eds-da-site--portales-acc-song.aem.live/uemi/es/sitemap.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://main--eds-da-site--portales-acc-song.aem.live/uemi/ca/sitemap.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://main--eds-da-site--portales-acc-song.aem.live/uemi/en/sitemap.xml</loc>
+  </sitemap>
+</sitemapindex>
