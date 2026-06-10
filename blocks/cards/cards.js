@@ -1,4 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import applyFocalPoint from '../../scripts/focal-point.js';
 
 export default function decorate(block) {
   /* change to ul, li */
@@ -13,6 +14,12 @@ export default function decorate(block) {
     });
     ul.append(li);
   });
-  ul.querySelectorAll('picture > img').forEach((img) => img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }])));
+  ul.querySelectorAll('picture > img').forEach((img) => {
+    const optimized = createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }]);
+    // conserva el focal point para que applyFocalPoint pueda leerlo en la imagen optimizada
+    if (img.dataset.title) optimized.querySelector('img').dataset.title = img.dataset.title;
+    img.closest('picture').replaceWith(optimized);
+  });
   block.replaceChildren(ul);
+  applyFocalPoint(block);
 }
