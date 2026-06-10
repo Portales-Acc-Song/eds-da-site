@@ -1,0 +1,90 @@
+version: 1
+
+# Índices por idioma. Sustituyen al índice por defecto autogenerado.
+#
+# Motivo: el sitemap (helix-sitemap.yaml) solo excluye las páginas marcadas
+# como `robots: noindex` si el query-index incluye la columna `robots`. El
+# índice por defecto NO la genera, por eso las páginas noindex aparecían en
+# el sitemap. Aquí replicamos las columnas que ya producía el índice por
+# defecto (title, date, description, image) y añadimos `robots`.
+#
+# Hay un índice por idioma cuyo `target` coincide con el `source` de cada
+# idioma en helix-sitemap.yaml (/uemi/<lang>/query-index.json).
+
+indices:
+  es:
+    include:
+      - '/uemi/es/**'
+    target: /uemi/es/query-index.json
+    properties:
+      title:
+        select: head > meta[property="og:title"]
+        value: |
+          attribute(el, 'content')
+      date:
+        select: head > meta[name="publication-date"]
+        value: |
+          dateValue(attribute(el, 'content'), 'MM/DD/YYYY')
+      description:
+        select: head > meta[name="description"]
+        value: |
+          attribute(el, 'content')
+      image:
+        select: head > meta[property="og:image"]
+        value: |
+          attribute(el, 'content')
+      # Activa la exclusión de páginas noindex en el sitemap.
+      robots:
+        select: head > meta[name="robots"]
+        value: |
+          attribute(el, 'content')
+  ca:
+    include:
+      - '/uemi/ca/**'
+    target: /uemi/ca/query-index.json
+    properties:
+      title:
+        select: head > meta[property="og:title"]
+        value: |
+          attribute(el, 'content')
+      date:
+        select: head > meta[name="publication-date"]
+        value: |
+          dateValue(attribute(el, 'content'), 'MM/DD/YYYY')
+      description:
+        select: head > meta[name="description"]
+        value: |
+          attribute(el, 'content')
+      image:
+        select: head > meta[property="og:image"]
+        value: |
+          attribute(el, 'content')
+      robots:
+        select: head > meta[name="robots"]
+        value: |
+          attribute(el, 'content')
+  en:
+    include:
+      - '/uemi/en/**'
+    target: /uemi/en/query-index.json
+    properties:
+      title:
+        select: head > meta[property="og:title"]
+        value: |
+          attribute(el, 'content')
+      date:
+        select: head > meta[name="publication-date"]
+        value: |
+          dateValue(attribute(el, 'content'), 'MM/DD/YYYY')
+      description:
+        select: head > meta[name="description"]
+        value: |
+          attribute(el, 'content')
+      image:
+        select: head > meta[property="og:image"]
+        value: |
+          attribute(el, 'content')
+      robots:
+        select: head > meta[name="robots"]
+        value: |
+          attribute(el, 'content')
