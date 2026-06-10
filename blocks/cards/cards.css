@@ -246,3 +246,69 @@
 .cards.promo .cards-card-body a:hover {
   gap: 7px;
 }
+
+/* ---- contact variation (autor: "Cards (contact)") - caja de contacto ---- */
+.cards.contact > ul {
+  background: #0098cd;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  color: white;   /* todo el texto de la caja en blanco */
+}
+
+.cards.contact > ul > li {
+  border: none;
+  background: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* título del bloque (item sin icono, con encabezado) */
+.cards.contact .cards-card-body h2,
+.cards.contact .cards-card-body h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+}
+
+/* icono del item: 20px y en blanco sobre el azul */
+.cards.contact .cards-card-icon p {
+  margin: 0;
+  line-height: 0;
+}
+
+.cards.contact .cards-card-icon .icon {
+  width: 20px;
+  height: 20px;
+}
+
+.cards.contact .cards-card-icon img {
+  filter: brightness(0) invert(1);
+}
+
+/* enlace del item (cubre <a> plano y botonizado) */
+.cards.contact .cards-card-body {
+  margin: 0;
+}
+
+.cards.contact .cards-card-body p {
+  margin: 0;
+}
+
+.cards.contact .cards-card-body a {
+  color: white;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: none;     /* neutraliza el estilo de botón global */
+  border: none;
+  border-radius: 0;
+  padding: 0;
+}
+
+.cards.contact .cards-card-body a:hover {
+  text-decoration: underline;
+}
