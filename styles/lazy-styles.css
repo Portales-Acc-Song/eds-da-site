@@ -41,3 +41,19 @@
   color: #333;
   cursor: pointer;
 }
+
+/* video variant: wider 16/9, transparent so the player fills it */
+.modal.modal-video .modal-inner {
+  max-width: 900px;
+  background: transparent;
+}
+
+.modal.modal-video .modal-close {
+  color: white;
+}
+
+.modal.modal-video .modal-inner video {
+  width: 100%;
+  height: auto;
+  display: block;
+}

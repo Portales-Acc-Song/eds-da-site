@@ -8,6 +8,6 @@ const CALLBACK_URL = 'https://llamamegratis.es/unir/webphone-v4.html';
 document.querySelectorAll('a[href$="#callback"]').forEach((a) => {
   a.addEventListener('click', (e) => {
     e.preventDefault();
-    openModal(`${CALLBACK_URL}#${window.location.href}`, '¿Te llamamos?');
+    openModal(`${CALLBACK_URL}#${window.location.href}`, { label: '¿Te llamamos?' });
   });
 });

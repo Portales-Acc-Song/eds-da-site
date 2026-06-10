@@ -1,20 +1,19 @@
 .video-cards {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;   /* mobile-first */
   gap: 0;
 }
 
 .video-cards .card {
   flex: 1;
   position: relative;
-  cursor: pointer;
   overflow: hidden;
 }
 
 .video-cards .card-image {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;   /* altura definida -> el bloque ocupa su sitio en el flujo */
+  aspect-ratio: 16 / 9;
 }
 
 .video-cards .card-image img {
@@ -29,81 +28,64 @@
   transform: scale(1.05);
 }
 
-.video-cards .card-overlay {
+/* accessible play button covering the card (click anywhere + keyboard focusable) */
+.video-cards .play-btn {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  padding: 0;
   background: rgb(0 0 0 / 35%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
+  cursor: pointer;
   transition: background 0.3s ease;
 }
 
-.video-cards .card:hover .card-overlay {
+.video-cards .play-btn:hover,
+.video-cards .play-btn:focus-visible {
   background: rgb(0 0 0 / 50%);
 }
 
-.video-cards .play-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
+.video-cards .play-btn::before {   /* circle */
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: 56px;
   height: 56px;
+  border: 2px solid white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.video-cards .play-btn svg {
-  width: 56px;
-  height: 56px;
+.video-cards .play-btn::after {    /* triangle */
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 16px solid white;
+  transform: translate(-40%, -50%);
 }
 
 .video-cards .card-title {
-  color: white;
-  font-size: 1rem;
-  font-weight: 600;
-  text-align: center;
+  position: absolute;
+  right: 0;
+  bottom: 1rem;
+  left: 0;
   margin: 0;
   padding: 0 1rem;
-}
-
-.video-modal {
-  position: fixed;
-  inset: 0;
-  background: rgb(0 0 0 / 80%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.video-modal-inner {
-  position: relative;
-  width: 90%;
-  max-width: 900px;
-  aspect-ratio: 16 / 9;
-}
-
-.video-modal-inner iframe {
-  width: 100%;
-  height: 100%;
-}
-
-.video-modal-close {
-  position: absolute;
-  top: -2rem;
-  right: 0;
-  background: none;
-  border: none;
   color: white;
-  font-size: 2rem;
-  cursor: pointer;
-  line-height: 1;
+  font-weight: 600;
+  text-align: center;
+  pointer-events: none;   /* clicks pass through to the play button */
 }
 
-@media (width <= 768px) {
+@media (width >= 900px) {
   .video-cards {
-    flex-direction: column;
+    flex-direction: row;
   }
 }

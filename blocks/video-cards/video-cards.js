@@ -1,80 +1,49 @@
+import { buildVideoEmbed } from '../../scripts/video-embed.js';
+import openModal from '../../scripts/modal.js';
+
+/**
+ * Gallery of video thumbnails. Each card shows an image + an accessible play
+ * button + a title; clicking plays the video in a modal. Reuses the shared
+ * video-embed helper (YouTube/Vimeo/MP4) and the shared modal.
+ * @param {Element} block The block element
+ */
 export default function decorate(block) {
-  const rows = [...block.children];
-
-  rows.forEach((row) => {
+  [...block.children].forEach((row) => {
     const [imgCell, contentCell] = [...row.children];
-    row.classList.add('card');
+    if (!imgCell) return;
 
-    const img = imgCell.querySelector('img');
+    row.classList.add('card');
     imgCell.classList.add('card-image');
 
-    const links = contentCell.querySelectorAll('a');
-    let videoUrl = '';
-    links.forEach((link) => {
-      const { href } = link;
-      if (href.includes('youtube.com') || href.includes('youtu.be')) {
-        videoUrl = href;
-        link.remove();
-      }
-    });
-
-    const title = contentCell.textContent.trim();
-    contentCell.innerHTML = '';
-
-    const overlay = document.createElement('div');
-    overlay.classList.add('card-overlay');
+    // first link in the content cell is the video; the rest of the text is the title
+    const link = contentCell?.querySelector('a');
+    const videoUrl = link?.href || '';
+    if (link) link.remove();
+    const title = contentCell ? contentCell.textContent.trim() : '';
 
     const playBtn = document.createElement('button');
-    playBtn.classList.add('play-btn');
-    playBtn.setAttribute('aria-label', `Reproducir ${title}`);
-    playBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="12" cy="12" r="11" fill="none" stroke="white" stroke-width="1.5"/>
-      <polygon points="10,8 17,12 10,16" fill="white"/>
-    </svg>`;
+    playBtn.type = 'button';
+    playBtn.className = 'play-btn';
+    playBtn.setAttribute('aria-label', title ? `Reproducir ${title}` : 'Reproducir vídeo');
 
-    const titleEl = document.createElement('p');
-    titleEl.classList.add('card-title');
-    titleEl.textContent = title;
+    // keep only the image, then overlay the play button + title
+    const media = imgCell.querySelector('picture, img');
+    imgCell.replaceChildren();
+    if (media) imgCell.append(media);
+    imgCell.append(playBtn);
 
-    overlay.appendChild(playBtn);
-    overlay.appendChild(titleEl);
-    imgCell.appendChild(overlay);
-
-    if (img) {
-      imgCell.insertBefore(img, overlay);
+    if (title) {
+      const titleEl = document.createElement('p');
+      titleEl.className = 'card-title';
+      titleEl.textContent = title;
+      imgCell.append(titleEl);
     }
 
-    row.innerHTML = '';
-    row.appendChild(imgCell);
+    row.replaceChildren(imgCell);
 
     if (videoUrl) {
-      row.addEventListener('click', () => {
-        const videoId = videoUrl.match(/v=([^&]+)/)?.[1];
-        if (!videoId) return;
-
-        const modal = document.createElement('div');
-        modal.classList.add('video-modal');
-        modal.innerHTML = `
-          <div class="video-modal-inner">
-            <button class="video-modal-close" aria-label="Cerrar">&times;</button>
-            <iframe
-              src="https://www.youtube.com/embed/${videoId}?autoplay=1"
-              frameborder="0"
-              allow="autoplay; encrypted-media"
-              allowfullscreen
-            ></iframe>
-          </div>
-        `;
-
-        document.body.appendChild(modal);
-
-        modal.querySelector('.video-modal-close').addEventListener('click', () => {
-          modal.remove();
-        });
-
-        modal.addEventListener('click', (e) => {
-          if (e.target === modal) modal.remove();
-        });
+      playBtn.addEventListener('click', () => {
+        openModal(buildVideoEmbed(videoUrl, { autoplay: true }), { label: title, className: 'modal-video' });
       });
     }
   });
