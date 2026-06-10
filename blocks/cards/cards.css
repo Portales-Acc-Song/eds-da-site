@@ -1,3 +1,8 @@
+/* stylelint-disable no-descending-specificity --
+   este bloque agrupa variaciones mutuamente excluyentes (.icons / .overlay / .promo);
+   sus selectores `li` / `li:last-child` nunca compiten en cascada (un bloque solo
+   tiene una variación), por lo que el orden de especificidad da falsos positivos. */
+
 .cards > ul {
   list-style: none;
   margin: 0;
@@ -44,7 +49,9 @@
   padding: 2.5rem 2rem;
 }
 
-.cards.icons > ul > li:last-child { border-bottom: none; }
+.cards.icons > ul > li:last-child {
+  border-bottom: none;
+}
 
 .cards.icons .cards-card-icon {        /* la celda del icono, arriba */
   order: -1;
@@ -61,15 +68,23 @@
   object-fit: contain;
 }
 
-.cards.icons .cards-card-body { margin: 0; }
+.cards.icons .cards-card-body {
+  margin: 0;
+}
 
-@media (min-width: 900px) {
-  .cards.icons > ul { flex-direction: row; }
+@media (width >= 900px) {
+  .cards.icons > ul {
+    flex-direction: row;
+  }
+
   .cards.icons > ul > li {
     border-bottom: none;
     border-right: 1px solid #e8e8e8;
   }
-  .cards.icons > ul > li:last-child { border-right: none; }
+
+  .cards.icons > ul > li:last-child {
+    border-right: none;
+  }
 }
 
 /* ---- overlay variation (autor: "Cards (overlay)") ---- */
@@ -149,10 +164,85 @@
   transition: margin-left 0.2s ease;
 }
 
-.cards.overlay .cards-card-body a:hover { opacity: 1; }
-.cards.overlay .cards-card-body a:hover::after { margin-left: 4px; }
+.cards.overlay .cards-card-body a:hover {
+  opacity: 1;
+}
 
-@media (min-width: 900px) {
-  .cards.overlay > ul { flex-direction: row; }
-  .cards.overlay > ul > li { min-height: 280px; }
+.cards.overlay .cards-card-body a:hover::after {
+  margin-left: 4px;
+}
+
+@media (width >= 900px) {
+  .cards.overlay > ul {
+    flex-direction: row;
+  }
+
+  .cards.overlay > ul > li {
+    min-height: 280px;
+  }
+}
+
+/* ---- promo variation (autor: "Cards (promo)") - lista de promos/enlaces ---- */
+.cards.promo > ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.cards.promo > ul > li {
+  border: none;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 1.5rem 0;
+}
+
+.cards.promo > ul > li:last-child {
+  border-bottom: none;
+}
+
+.cards.promo .cards-card-body {
+  margin: 0;
+}
+
+.cards.promo .cards-card-body h2,
+.cards.promo .cards-card-body h3 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: #1a1a1a;
+}
+
+.cards.promo .cards-card-body p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #555;
+  margin: 0 0 0.75rem;
+}
+
+/* un solo bloque para el enlace: cubre el <a> plano y el botonizado
+   (decorateButtons lo deja como a.button dentro de p.button-wrapper) */
+.cards.promo .cards-card-body a {
+  color: #0098cd;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;     /* neutraliza el estilo de botón global */
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  transition: gap 0.2s ease;
+}
+
+.cards.promo .cards-card-body a::after {
+  content: '›';
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.cards.promo .cards-card-body a:hover {
+  gap: 7px;
 }
