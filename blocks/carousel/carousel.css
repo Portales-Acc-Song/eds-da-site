@@ -102,12 +102,14 @@
 /* stylelint-disable-next-line no-descending-specificity */
 .carousel .carousel-navigation-buttons button {
   position: relative;
-  width: 44px;
   height: 44px;
   margin: 0;
-  border-radius: 50%;
-  padding: 0;
+  border-radius: 22px;
+  padding: 0 1rem;
   background-color: rgb(19 19 19 / 25%);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
   transition: background-color 0.2s;
 }
 
@@ -117,7 +119,7 @@
 }
 
 .carousel .carousel-navigation-buttons button::after {
-  display: block;
+  display: none;   /* POC: ocultamos la flecha para mostrar el texto del placeholder */
   content: '';
   border: 2px solid;
   border-bottom: 0;
