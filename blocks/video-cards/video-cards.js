@@ -17,7 +17,7 @@ export default function decorate(block) {
 
     // first link in the content cell is the video; the rest of the text is the title
     const link = contentCell?.querySelector('a');
-    const videoUrl = link?.href || '';
+    const { href: videoUrl = '' } = link || {};
     if (link) link.remove();
     const title = contentCell ? contentCell.textContent.trim() : '';
 

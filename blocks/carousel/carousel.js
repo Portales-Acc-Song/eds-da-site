@@ -1,4 +1,17 @@
 import { fetchPlaceholders } from '../../scripts/placeholders.js';
+import { getCurrentLang } from '../../scripts/languages.js';
+
+/**
+ * Content path up to and including the current language segment (e.g. "/uemi/es"),
+ * so placeholders load for the right locale.
+ * @param {string} [pathname]
+ * @returns {string}
+ */
+function langPrefix(pathname = window.location.pathname) {
+  const parts = pathname.split('/');
+  const idx = parts.indexOf(getCurrentLang(pathname));
+  return idx > -1 ? parts.slice(0, idx + 1).join('/') : '';
+}
 
 function updateActiveSlide(slide) {
   const block = slide.closest('.carousel');
@@ -99,7 +112,7 @@ export default async function decorate(block) {
   const rows = block.querySelectorAll(':scope > div');
   const isSingleSlide = rows.length < 2;
 
-  const placeholders = await fetchPlaceholders();
+  const placeholders = await fetchPlaceholders(langPrefix());
 
   block.setAttribute('role', 'region');
   block.setAttribute('aria-roledescription', placeholders.carousel || 'Carousel');
