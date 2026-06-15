@@ -1,676 +1,572 @@
-import { toCamelCase, toClassName } from '../../scripts/aem.js';
+import { createOptimizedPicture, loadCSS } from '../../scripts/aem.js';
+import transferRepeatableDOM, { insertAddButton, insertRemoveButton } from './components/repeat/repeat.js';
+import { emailPattern, getSubmitBaseUrl, SUBMISSION_SERVICE } from './constant.js';
+import GoogleReCaptcha from './integrations/recaptcha.js';
+import componentDecorator from './mappings.js';
+import { handleSubmit } from './submit.js';
+import DocBasedFormToAF from './transform.js';
+import {
+  checkValidation,
+  createButton,
+  createDropdownUsingEnum,
+  createFieldWrapper,
+  createHelpText,
+  createLabel,
+  createRadioOrCheckboxUsingEnum,
+  extractIdFromUrl,
+  getHTMLRenderType,
+  getSitePageName,
+  setConstraints,
+  setPlaceholder,
+  stripTags,
+  createRadioOrCheckbox,
+  createInput,
+} from './util.js';
 
-/**
- * Creates an HTML element with an optional class name
- * @param {string} tag - HTML tag name
- * @param {string} [className] - Optional CSS class name
- * @returns {HTMLElement} Created element
- */
-function createElement(tag, className) {
-  const el = document.createElement(tag);
-  if (className) el.className = className;
-  return el;
-}
+export const DELAY_MS = 0;
+let captchaField;
+let afModule;
 
-/**
- * Generates a camelCase ID from a name and optional option
- * @param {string} name - Base name for the ID
- * @param {string} [option] - Optional value to append to the ID
- * @returns {string} Generated camelCase ID
- */
-function generateId(name, option = null) {
-  const id = toCamelCase(name);
-  return option ? `${id}-${toCamelCase(option)}` : id;
-}
+const withFieldWrapper = (element) => (fd) => {
+  const wrapper = createFieldWrapper(fd);
+  wrapper.append(element(fd));
+  return wrapper;
+};
 
-/**
- * Creates a help text paragraph with a unique ID
- * @param {string} text - Help text content
- * @param {string} inputId - ID of the associated input field
- * @returns {HTMLParagraphElement} Help text element
- */
-function writeHelpText(text, inputId) {
-  const help = createElement('p', 'field-help-text');
-  help.textContent = text;
-  help.id = `${inputId}-help`;
-  return help;
-}
-
-/**
- * Creates a label or legend element
- * @param {string} text - Label text content
- * @param {string} [type='label'] - Either 'label' or 'legend'
- * @param {string} [id] - ID of the associated input (for 'label' type only)
- * @param {boolean} [required] - Whether the field is required
- * @returns {HTMLElement} Label or legend element
- */
-function buildLabel(text, type = 'label', id = null, required = false) {
-  const label = createElement(type);
-  label.textContent = text;
-  if (id && type === 'label') label.setAttribute('for', id);
-  if (required) label.dataset.required = 'true';
-  return label;
-}
-
-/**
- * Creates an input element with specified attributes
- * @param {Object} field - Field configuration object
- * @returns {HTMLInputElement} Input element
- */
-function buildInput(field) {
-  const {
-    type, field: fieldName, required, default: defaultValue, placeholder,
-  } = field;
-
-  const input = createElement('input');
-  input.type = type || 'text';
-  input.id = generateId(fieldName);
-  input.name = input.id;
-  input.required = required === 'true';
-  if (defaultValue) input.value = defaultValue;
-  if (placeholder) input.placeholder = placeholder;
+const createTextArea = withFieldWrapper((fd) => {
+  const input = document.createElement('textarea');
+  setPlaceholder(input, fd);
   return input;
-}
+});
 
-/**
- * Creates a textarea element
- * @param {Object} field - Field configuration object
- * @returns {HTMLTextAreaElement} Textarea element
- */
-function buildTextArea(field) {
-  const {
-    field: fieldName, required, default: defaultValue, placeholder,
-  } = field;
+const createSelect = withFieldWrapper((fd) => {
+  const select = document.createElement('select');
+  createDropdownUsingEnum(fd, select);
+  return select;
+});
 
-  const textarea = createElement('textarea');
-  textarea.id = generateId(fieldName);
-  textarea.name = textarea.id;
-  textarea.required = required === 'true';
-  textarea.rows = 5;
-  if (defaultValue) textarea.value = defaultValue;
-  if (placeholder) textarea.placeholder = placeholder;
-  return textarea;
-}
-
-/**
- * Creates a radio/checkbox input for an option
- * @param {Object} field - Field configuration object
- * @param {string} option - Option value
- * @returns {HTMLInputElement} Radio/checkbox input
- */
-function buildOptionInput(field, option) {
-  const {
-    type, field: fieldName, default: defaultValue, required,
-  } = field;
-  const id = generateId(fieldName, option);
-
-  const input = createElement('input');
-  input.type = type;
-  input.id = id;
-  input.name = generateId(fieldName);
-  input.value = option;
-  input.checked = option === defaultValue;
-  input.required = required === 'true';
-
-  return input;
-}
-
-/**
- * Creates a fieldset containing radio/checkbox options
- * @param {Object} field - Field configuration object
- * @param {string} controlled - Controlled field name
- * @returns {HTMLFieldSetElement} Fieldset containing options
- */
-function buildOptions(field, controlled) {
-  const {
-    type, options, label, required,
-  } = field;
-  if (!options) return null;
-
-  const fieldset = createElement('fieldset', `form-field ${type}-field`);
-  if (controlled) {
-    const controller = controlled.split('-')[0];
-    fieldset.dataset.controller = controller;
-    fieldset.dataset.condition = controlled;
-  }
-  fieldset.append(buildLabel(label, 'legend', null, required === 'true'));
-
-  options.split(',').forEach((o) => {
-    const option = o.trim();
-    const input = buildOptionInput(field, option);
-    const span = createElement('span');
-    const labelEl = buildLabel(option, 'label', input.id);
-    labelEl.prepend(input, span);
-    fieldset.append(labelEl);
-  });
-
-  return fieldset;
-}
-
-/**
- * Fetches select options from a remote URL
- * @param {URL} url - URL to fetch options from
- * @returns {Promise<Array<HTMLOptionElement>>} Array of option elements
- */
-async function buildOptionsFromUrl(url) {
-  const resp = await fetch(url);
-  const { data } = await resp.json();
-  const options = data.map((o) => {
-    const { option, value } = o;
-    const optionEl = createElement('option');
-    if (option && value) {
-      optionEl.value = value;
-      optionEl.textContent = option;
-    } else if (option && !value) {
-      optionEl.value = option;
-      optionEl.textContent = option;
-    } else if (value && !option) {
-      optionEl.value = value;
-      optionEl.textContent = value;
-    }
-    return optionEl;
-  });
-  return options;
-}
-
-/**
- * Creates a select dropdown field
- * @param {Object} field - Field configuration object
- * @param {string} controlled - Controlled field name
- * @returns {HTMLElement} Wrapper div containing select element
- */
-function buildSelect(field, controlled) {
-  const {
-    type, options, field: fieldName, label, required, placeholder,
-  } = field;
-  if (!options) return null;
-
-  const wrapper = createElement('div', `form-field ${type}-field`);
-  if (controlled) {
-    const controller = controlled.split('-')[0];
-    wrapper.dataset.controller = controller;
-    wrapper.dataset.condition = controlled;
-  }
-  wrapper.append(buildLabel(label, 'label', generateId(fieldName), required === 'true'));
-
-  const select = createElement('select');
-  select.id = generateId(fieldName);
-  select.name = select.id;
-  select.required = required === 'true';
-  wrapper.append(select);
-
-  if (placeholder) {
-    const placeholderOption = createElement('option');
-    placeholderOption.value = '';
-    placeholderOption.textContent = placeholder;
-    placeholderOption.disabled = true;
-    placeholderOption.selected = true;
-    select.append(placeholderOption);
-  }
-
-  try {
-    const url = new URL(options);
-    buildOptionsFromUrl(url).then((os) => {
-      select.append(...os);
-    });
-  } catch (error) {
-    options.split(',').forEach((o) => {
-      const option = o.trim();
-      const optionEl = createElement('option');
-      optionEl.value = option;
-      optionEl.textContent = option;
-      select.append(optionEl);
-    });
-  }
+function createHeading(fd) {
+  const wrapper = createFieldWrapper(fd);
+  const heading = document.createElement('h2');
+  heading.textContent = fd.value || fd.label.value;
+  heading.id = fd.id;
+  wrapper.append(heading);
 
   return wrapper;
 }
 
-/**
- * Creates a toggle switch field (styled checkbox)
- * @param {Object} field - Field configuration object
- * @param {string} controlled - Controlled field name
- * @returns {HTMLElement} Wrapper div containing toggle switch
- */
-function buildToggle(field, controlled) {
-  const {
-    label, required, default: defaultValue,
-  } = field;
+function createLegend(fd) {
+  return createLabel(fd, 'legend');
+}
 
-  const wrapper = createElement('div', 'form-field toggle-field');
-  if (controlled) {
-    const controller = controlled.split('-')[0];
-    wrapper.dataset.controller = controller;
-    wrapper.dataset.condition = controlled;
+function createRepeatablePanel(wrapper, fd) {
+  setConstraints(wrapper, fd);
+  wrapper.dataset.repeatable = true;
+  wrapper.dataset.index = fd.index || 0;
+  if (fd.properties) {
+    Object.keys(fd.properties).forEach((key) => {
+      if (!key.startsWith('fd:')) {
+        wrapper.dataset[key] = fd.properties[key];
+      }
+    });
   }
+  if ((!fd.index || fd?.index === 0) && fd.properties?.variant !== 'noButtons') {
+    insertAddButton(wrapper, wrapper);
+    insertRemoveButton(wrapper, wrapper);
+  }
+}
 
-  const input = buildOptionInput({ ...field, type: 'checkbox' }, defaultValue || 'true');
-  input.setAttribute('role', 'switch');
-  input.setAttribute('aria-checked', input.checked);
-
-  input.addEventListener('change', () => {
-    input.setAttribute('aria-checked', input.checked);
-  });
-
-  const span = createElement('span');
-  const labelEl = buildLabel(label, 'label', input.id, required === 'true');
-  labelEl.prepend(input, span);
-  wrapper.append(labelEl);
-
+function createFieldSet(fd) {
+  const wrapper = createFieldWrapper(fd, 'fieldset', createLegend);
+  wrapper.id = fd.id;
+  wrapper.name = fd.name;
+  if (fd.fieldType === 'panel') {
+    wrapper.classList.add('panel-wrapper');
+  }
+  if (fd.repeatable === true) {
+    createRepeatablePanel(wrapper, fd);
+  }
   return wrapper;
 }
 
-/**
- * Creates a button element
- * @param {Object} field - Field configuration object
- * @returns {HTMLButtonElement} Button element
- */
-function buildButton(field) {
-  const { type, label } = field;
-  const button = createElement('button');
-  button.className = 'button';
-  button.type = type;
-  button.textContent = label;
-  if (type === 'reset') button.classList.add('secondary');
-  return button;
-}
-
-/**
- * Toggles visibility of conditional fields based on the selected input
- * @param {Event} e - Change event
- * @param {Map} controllerConfig - Map of controller names to controlled fields
- */
-function toggleConditional(e, controllerConfig) {
-  const { target } = e;
-  const controller = target.name;
-  // check if this is a controlling input
-  if (controllerConfig.has(controller)) {
-    const inputs = [...controllerConfig.get(controller)];
-    inputs.forEach((i) => {
-      const field = i.closest('.form-field');
-      const { condition } = field.dataset;
-      const conditionMet = condition.includes(toClassName(target.value));
-      field.setAttribute('aria-hidden', !conditionMet);
-
-      // toggle required and tabindex based on visibility
-      if (conditionMet) {
-        if (i.dataset.originalRequired === 'true') {
-          i.setAttribute('required', '');
-        }
-        i.removeAttribute('tabindex');
-      } else {
-        i.removeAttribute('required');
-        i.setAttribute('tabindex', '-1'); // remove from tab order when hidden
-      }
-    });
-  }
-}
-
-/**
- * Sets initial visibility of conditional fields based on default values.
- * @param {HTMLFormElement} form - Form element
- * @param {Map} controllerConfig - Map of controller names to controlled fields.
- */
-function initConditionals(form, controllerConfig) {
-  // for each controller, find its current value and apply conditions
-  controllerConfig.forEach((controlledInputs, controller) => {
-    // find the controlling input - could be radio/checkbox or select
-    let controllerValue = null;
-    const checked = form.querySelector(`[name="${controller}"]:checked`);
-    const select = form.querySelector(`select[name="${controller}"]`);
-
-    if (checked) {
-      controllerValue = checked.value;
-    } else if (select) {
-      controllerValue = select.value;
-    }
-
-    if (controllerValue) {
-      // set correct visibility for each controlled field
-      controlledInputs.forEach((input) => {
-        const field = input.closest('.form-field');
-        const { condition } = field.dataset;
-        const conditionMet = condition.includes(toClassName(controllerValue));
-        field.setAttribute('aria-hidden', !conditionMet);
-
-        // store original required state and toggle based on visibility
-        if (input.hasAttribute('required')) {
-          // store original required state if not already stored
-          if (!input.dataset.originalRequired) {
-            input.dataset.originalRequired = 'true';
-          }
-
-          if (!conditionMet) {
-            input.removeAttribute('required');
-          }
-        }
-
-        // remove from tab order when hidden
-        if (conditionMet) {
-          input.removeAttribute('tabindex');
-        } else {
-          input.setAttribute('tabindex', '-1');
-        }
-      });
-    } else {
-      // if no input is checked, hide all controlled fields
-      controlledInputs.forEach((input) => {
-        const field = input.closest('.form-field');
-        field.setAttribute('aria-hidden', true);
-
-        // remove required attribute when hidden
-        if (input.hasAttribute('required')) {
-          // store original required state if not already stored
-          if (!input.dataset.originalRequired) {
-            input.dataset.originalRequired = 'true';
-          }
-          input.removeAttribute('required');
-        }
-
-        // remove from tab order when hidden
-        input.setAttribute('tabindex', '-1');
-      });
-    }
+function setConstraintsMessage(field, messages = {}) {
+  Object.keys(messages).forEach((key) => {
+    field.dataset[`${key}ErrorMessage`] = messages[key];
   });
 }
 
-/**
- * Sets up conditional field visibility and ARIA relationships
- * @param {HTMLFormElement} form - Form element
- */
-function enableConditionals(form) {
-  // find controlled fields
-  const controlled = [...form.querySelectorAll('[data-controller]')];
-
-  // create a map of controller names to controlled fields
-  const controllerConfig = new Map();
-
-  controlled.forEach((c) => {
-    const input = c.querySelector('input, textarea, select');
-    const { controller } = c.dataset;
-
-    // add to controller map
-    if (!controllerConfig.has(controller)) controllerConfig.set(controller, []);
-    controllerConfig.get(controller).push(input);
-
-    // set up aria relationships
-    if (input && input.id) {
-      // find the controlling input(s)
-      const controllerInputs = form.querySelectorAll(`[name="${controller}"]`);
-
-      // set aria-controls on controlling inputs
-      controllerInputs.forEach((controllerInput) => {
-        // get existing aria-controls or initialize empty
-        const existingControls = controllerInput.getAttribute('aria-controls') || '';
-        const controlsArray = existingControls.split(' ').filter((ec) => ec);
-
-        // add this input's id if not already present
-        if (!controlsArray.includes(input.id)) {
-          controlsArray.push(input.id);
-        }
-
-        // update aria-controls attribute
-        controllerInput.setAttribute('aria-controls', controlsArray.join(' '));
-
-        // set aria-controlledby on the controlled input
-        input.setAttribute('aria-controlledby', controllerInput.id);
-      });
-    }
-  });
-
-  // initialize conditional visibility
-  initConditionals(form, controllerConfig);
-
-  // add single event listener for ALL controlling inputs
-  form.addEventListener('change', (e) => {
-    toggleConditional(e, controllerConfig);
-  });
+function createRadioOrCheckboxGroup(fd) {
+  const wrapper = createFieldSet({ ...fd });
+  createRadioOrCheckboxUsingEnum(fd, wrapper);
+  wrapper.dataset.required = fd.required;
+  if (fd.tooltip) {
+    wrapper.title = stripTags(fd.tooltip, '');
+  }
+  setConstraintsMessage(wrapper, fd.constraintMessages);
+  return wrapper;
 }
 
-/**
- * Enables or disables all form elements
- * @param {HTMLFormElement} form - Form element
- * @param {boolean} [disabled=true] - Whether to disable the form
- */
-function toggleForm(form, disabled = true) {
-  [...form.elements].forEach((el) => {
-    el.disabled = disabled;
-  });
-}
-
-/**
- * Generates form submission payload from form elements
- * @param {HTMLFormElement} form - Form element
- * @returns {Object} Payload object with form data
- */
-function generatePayload(form) {
-  const payload = {};
-  [...form.elements].forEach((field) => {
-    if (field.name && !field.disabled) {
-      if (field.type === 'radio') {
-        if (field.checked) payload[field.name] = field.value;
-      } else if (field.type === 'checkbox') {
-        if (field.checked) payload[field.name] = payload[field.name] ? `${payload[field.name]},${field.value}` : field.value;
-      } else {
-        payload[field.name] = field.value;
-      }
-    }
-  });
-  return payload;
-}
-
-/**
- * Handles form submission
- * @param {HTMLFormElement} form - Form element to submit
- * @returns {Promise<void>}
- */
-async function handleSubmit(form) {
-  try {
-    const payload = generatePayload(form);
-    toggleForm(form);
-    const response = await fetch(form.dataset.action, {
-      method: 'POST',
-      body: JSON.stringify({ data: payload }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (response.ok) {
-      if (form.dataset.confirmation) {
-        window.location.href = form.dataset.confirmation;
-      }
-    } else {
-      const error = await response.text();
-      throw new Error(error);
-    }
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error);
-  } finally {
-    toggleForm(form, false);
-  }
-}
-
-/**
- * Sets up form submission handler
- * @param {HTMLFormElement} form - Form element
- * @param {string} submit - Submit URL
- * @param {Array<Object>} fields - Array of field configurations
- */
-function enableSubmission(form, submit, fields) {
-  form.dataset.action = submit;
-  const confirmation = fields.find((f) => f.type === 'confirmation');
-  if (confirmation) {
-    form.dataset.confirmation = confirmation.label || confirmation.default;
-  }
-
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const valid = form.reportValidity();
-    if (valid) {
-      handleSubmit(form);
-    } else {
-      const firstInvalid = form.querySelector(':invalid:not(fieldset)');
-      if (firstInvalid) {
-        firstInvalid.focus();
-        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        firstInvalid.setAttribute('aria-invalid', true);
-      }
-    }
-  });
-
-  // clear aria-invalid on field change
-  form.addEventListener('input', (e) => {
-    if (e.target.hasAttribute('aria-invalid')) {
-      if (e.target.validity.valid) {
-        e.target.removeAttribute('aria-invalid');
-      }
-    }
-  });
-}
-
-/**
- * Creates a form field based on field configuration
- * @param {Object} field - Field configuration object
- * @returns {HTMLElement} Form field element (fieldset, div, or button)
- */
-function buildField(field) {
-  const {
-    type, label, help, field: fieldName, conditional,
-  } = field;
-  const controlled = conditional || null;
-
-  // submit/reset buttons stand alone
-  if (type === 'submit' || type === 'reset') {
-    return buildButton(field);
-  }
-
-  // radio/checkbox groups get a fieldset
-  if (type === 'radio' || type === 'checkbox') {
-    const fieldset = buildOptions(field, controlled);
-    if (help) {
-      const helpText = writeHelpText(help, generateId(fieldName));
-      fieldset.append(helpText);
-    }
-    return fieldset;
-  }
-
-  if (type === 'toggle') {
-    const toggle = buildToggle(field, controlled);
-    if (help) {
-      const helpText = writeHelpText(help, generateId(fieldName));
-      toggle.append(helpText);
-    }
-    return toggle;
-  }
-
-  if (type === 'select') {
-    const select = buildSelect(field, controlled);
-    if (help) {
-      const helpText = writeHelpText(help, generateId(fieldName));
-      select.append(helpText);
-    }
-    return select;
-  }
-
-  // inputs and textareas get a wrapper div
-  const wrapper = createElement('div', `form-field ${type}-field`);
-  if (controlled) {
-    const controller = controlled.split('-')[0];
-    wrapper.dataset.controller = controller;
-    wrapper.dataset.condition = controlled;
-  }
-  const inputId = generateId(fieldName);
-  wrapper.append(buildLabel(label, 'label', inputId, field.required === 'true'));
-
-  // create help text first to get id
-  let helpText;
-  if (help) {
-    helpText = writeHelpText(help, inputId);
-    wrapper.append(helpText);
-  }
-
-  const input = type === 'textarea' ? buildTextArea(field) : buildInput(field);
-
-  if (type === 'textarea') {
-    wrapper.append(input);
+function createPlainText(fd) {
+  const paragraph = document.createElement('p');
+  if (fd.richText) {
+    paragraph.innerHTML = stripTags(fd.value);
   } else {
-    wrapper.insertBefore(input, wrapper.firstChild.nextSibling);
+    paragraph.textContent = fd.value;
   }
-
-  if (help) input.setAttribute('aria-describedby', helpText.id);
-
+  const wrapper = createFieldWrapper(fd);
+  wrapper.id = fd.id;
+  wrapper.replaceChildren(paragraph);
   return wrapper;
 }
 
-/**
- * Creates a complete form from field configurations
- * @param {Array<Object>} fields - Array of field configurations
- * @returns {HTMLFormElement} Complete form element
- */
-function buildForm(fields, submit) {
-  const form = createElement('form');
-  form.setAttribute('novalidate', '');
+function createImage(fd) {
+  const field = createFieldWrapper(fd);
+  field.id = fd?.id;
+  const imagePath = fd.value || fd.properties['fd:repoPath'] || '';
+  const altText = fd.altText || fd.name;
+  field.append(createOptimizedPicture(imagePath, altText));
+  return field;
+}
 
-  // group buttons at the end
-  const buttons = [];
+const fieldRenderers = {
+  'drop-down': createSelect,
+  'plain-text': createPlainText,
+  checkbox: createRadioOrCheckbox,
+  button: createButton,
+  multiline: createTextArea,
+  panel: createFieldSet,
+  radio: createRadioOrCheckbox,
+  'radio-group': createRadioOrCheckboxGroup,
+  'checkbox-group': createRadioOrCheckboxGroup,
+  image: createImage,
+  heading: createHeading,
+};
 
-  fields.forEach((field) => {
-    if (field.type === 'submit' || field.type === 'reset') {
-      buttons.push(field);
-    } else if (field.type !== 'confirmation') {
-      form.append(buildField(field));
+function colSpanDecorator(field, element) {
+  const colSpan = field['Column Span'] || field.properties?.colspan;
+  if (colSpan && element) {
+    element.classList.add(`col-${colSpan}`);
+  }
+}
+
+const handleFocus = (input, field) => {
+  const editValue = input.getAttribute('edit-value');
+  input.type = field.type;
+  input.value = editValue;
+};
+
+const handleFocusOut = (input) => {
+  const displayValue = input.getAttribute('display-value');
+  input.type = 'text';
+  input.value = displayValue;
+};
+
+function inputDecorator(field, element) {
+  const input = element?.querySelector('input,textarea,select');
+  if (input) {
+    input.id = field.id;
+    input.name = field.name;
+    if (field.tooltip) {
+      input.title = stripTags(field.tooltip, '');
     }
+    input.readOnly = field.readOnly;
+    input.autocomplete = field.autoComplete ?? 'off';
+    input.disabled = field.enabled === false;
+    if (field.fieldType === 'drop-down' && field.readOnly) {
+      input.disabled = true;
+    }
+    const fieldType = getHTMLRenderType(field);
+    if (['number', 'date', 'text', 'email'].includes(fieldType) && (field.displayFormat || field.displayValueExpression)) {
+      field.type = fieldType;
+      input.setAttribute('edit-value', field.value ?? '');
+      input.setAttribute('display-value', field.displayValue ?? '');
+      input.type = 'text';
+      input.value = field.displayValue ?? '';
+      // Handle mobile touch events to enable native date picker
+      let isMobileTouch = false;
+      input.addEventListener('touchstart', () => {
+        isMobileTouch = true;
+        input.type = field.type;
+        // Set the edit value immediately to prevent empty field
+        const editValue = input.getAttribute('edit-value');
+        if (editValue) {
+          input.value = editValue;
+        }
+      });
+
+      input.addEventListener('focus', () => {
+        // Only change type on desktop or if not already changed by touchstart
+        if (!isMobileTouch && input.type !== field.type) {
+          input.type = field.type;
+        }
+        handleFocus(input, field);
+        // Reset mobile touch flag
+        isMobileTouch = false;
+      });
+      input.addEventListener('blur', () => handleFocusOut(input));
+    } else if (input.type !== 'file') {
+      input.value = field.value ?? '';
+      if (input.type === 'radio' || input.type === 'checkbox') {
+        input.value = field?.enum?.[0] ?? 'on';
+        input.checked = field.value === input.value;
+      }
+    } else {
+      input.multiple = field.type === 'file[]';
+    }
+    if (field.required) {
+      input.setAttribute('required', 'required');
+    }
+    if (field.description) {
+      input.setAttribute('aria-describedby', `${field.id}-description`);
+    }
+    if (field.minItems) {
+      input.dataset.minItems = field.minItems;
+    }
+    if (field.maxItems) {
+      input.dataset.maxItems = field.maxItems;
+    }
+    if (field.maxFileSize) {
+      input.dataset.maxFileSize = field.maxFileSize;
+    }
+    if (field.default !== undefined) {
+      input.setAttribute('value', field.default);
+    }
+    if (input.type === 'email') {
+      input.pattern = emailPattern;
+    }
+    setConstraintsMessage(element, field.constraintMessages);
+    element.dataset.required = field.required;
+  }
+}
+
+function decoratePanelContainer(panelDefinition, panelContainer) {
+  if (!panelContainer) return;
+
+  const isPanelWrapper = (container) => container.classList?.contains('panel-wrapper');
+
+  const shouldAddLabel = (container, panel) => panel.label && !container.querySelector(`legend[for=${container.dataset.id}]`);
+
+  if (isPanelWrapper(panelContainer)) {
+    if (shouldAddLabel(panelContainer, panelDefinition)) {
+      const legend = createLegend(panelDefinition);
+      if (legend) {
+        panelContainer.insertAdjacentElement('afterbegin', legend);
+      }
+    }
+  }
+}
+
+function renderField(fd) {
+  const fieldType = fd?.fieldType?.replace('-input', '') ?? 'text';
+  const renderer = fieldRenderers[fieldType];
+  let field;
+  if (typeof renderer === 'function') {
+    field = renderer(fd);
+  } else {
+    field = createFieldWrapper(fd);
+    field.append(createInput(fd));
+  }
+  if (fd.description) {
+    field.append(createHelpText(fd));
+    field.dataset.description = fd.description; // In case overriden by error message
+  }
+  if (fd.fieldType !== 'radio-group' && fd.fieldType !== 'checkbox-group' && fd.fieldType !== 'captcha') {
+    inputDecorator(fd, field);
+  }
+  return field;
+}
+
+export async function generateFormRendition(panel, container, formId, getItems = (p) => p?.items) {
+  const items = getItems(panel) || [];
+  const promises = items.map(async (field) => {
+    field.value = field.value ?? '';
+    const { fieldType } = field;
+    if (fieldType === 'captcha') {
+      captchaField = field;
+      const element = createFieldWrapper(field);
+      element.textContent = 'CAPTCHA';
+      return element;
+    }
+    const element = renderField(field);
+    if (field.appliedCssClassNames) {
+      element.className += ` ${field.appliedCssClassNames}`;
+    }
+    colSpanDecorator(field, element);
+    if (field?.fieldType === 'panel') {
+      await generateFormRendition(field, element, formId, getItems);
+      return element;
+    }
+    await componentDecorator(element, field, container, formId);
+    return element;
   });
 
-  // add buttons in a wrapper (if any)
-  if (buttons.length) {
-    const buttonWrapper = createElement('div', 'button-wrapper');
-    buttons.forEach((button) => buttonWrapper.append(buildField(button)));
-    form.append(buttonWrapper);
-  }
+  const children = await Promise.all(promises);
+  container.append(...children.filter((_) => _ != null));
+  decoratePanelContainer(panel, container);
+  await componentDecorator(container, panel, null, formId);
+}
 
-  enableConditionals(form);
+function enableValidation(form) {
+  form.querySelectorAll('input,textarea,select').forEach((input) => {
+    input.addEventListener('invalid', (event) => {
+      checkValidation(event.target);
+    });
+  });
 
-  if (submit) enableSubmission(form, submit, fields);
+  form.addEventListener('change', (event) => {
+    checkValidation(event.target);
+  });
+}
 
+function isDocumentBasedForm(formDef) {
+  return formDef?.[':type'] === 'sheet' && formDef?.data;
+}
+
+async function createFormForAuthoring(formDef) {
+  const form = document.createElement('form');
+  await generateFormRendition(formDef, form, formDef.id, (container) => {
+    if (container[':itemsOrder'] && container[':items']) {
+      return container[':itemsOrder'].map((itemKey) => container[':items'][itemKey]);
+    }
+    return [];
+  });
   return form;
 }
 
-/**
- * Initializes form block with data from JSON endpoint
- * @param {HTMLElement} block - Form block element
- */
-export default function decorate(block) {
-  block.style.visibility = 'hidden';
-  const [source, submit] = [...block.querySelectorAll('a[href]')].map((a) => a.href);
-  if (source) {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(async (entry) => {
-        if (entry.isIntersecting) {
-          try {
-            const resp = await fetch(new URL(source, window.location.origin));
-            if (!resp.ok) throw new Error(`${resp.status}: ${resp.statusText}`);
-            const { data } = await resp.json();
-            if (!data) throw new Error(`No form fields at ${source}`);
-            const form = buildForm(data, submit);
-            block.replaceChildren(form);
-            block.removeAttribute('style');
-          } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error('Could not build form from', source, error);
-            block.parentElement.remove();
-          }
-          observer.disconnect();
+export async function createForm(formDef, data, source = 'aem') {
+  const { action: formPath } = formDef;
+  const form = document.createElement('form');
+  form.dataset.action = formPath;
+  form.dataset.source = source;
+  form.noValidate = true;
+  if (formDef.appliedCssClassNames) {
+    form.className = formDef.appliedCssClassNames;
+  }
+  const formId = extractIdFromUrl(formPath); // formDef.id returns $form after getState()
+  await generateFormRendition(formDef, form, formId);
+
+  let captcha;
+  if (captchaField) {
+    let config = captchaField?.properties?.['fd:captcha']?.config;
+    if (!config) {
+      config = {
+        siteKey: captchaField?.value,
+        uri: captchaField?.uri,
+        version: captchaField?.version,
+      };
+    }
+    const pageName = getSitePageName(captchaField?.properties?.['fd:path']);
+    captcha = new GoogleReCaptcha(config, captchaField.id, captchaField.name, pageName);
+    captcha.loadCaptcha(form);
+  }
+
+  // Only enable DOM validation for doc-based forms; edge forms use the model.
+  if (source === 'sheet') {
+    enableValidation(form);
+  }
+  transferRepeatableDOM(form, formDef, form, formId);
+
+  if (afModule && typeof Worker === 'undefined') {
+    window.setTimeout(async () => {
+      afModule.loadRuleEngine(formDef, form, captcha, generateFormRendition, data);
+    }, DELAY_MS);
+  }
+
+  form.addEventListener('reset', async () => {
+    const currentSource = form.dataset.source || 'aem';
+    const response = await createForm(formDef, undefined, currentSource);
+    if (response?.form) {
+      document.querySelector(`[data-action="${form?.dataset?.action}"]`)?.replaceWith(response?.form);
+    }
+  });
+
+  form.addEventListener('submit', (e) => {
+    handleSubmit(e, form, captcha);
+  });
+
+  return {
+    form,
+    captcha,
+    generateFormRendition,
+    data,
+  };
+}
+
+function cleanUp(content) {
+  const formDef = content.replaceAll('^(([^<>()\\\\[\\\\]\\\\\\\\.,;:\\\\s@\\"]+(\\\\.[^<>()\\\\[\\\\]\\\\\\\\.,;:\\\\s@\\"]+)*)|(\\".+\\"))@((\\\\[[0-9]{1,3}\\\\.[0-9]{1,3}\\\\.[0-9]{1,3}\\\\.[0-9]{1,3}])|(([a-zA-Z\\\\-0-9]+\\\\.)\\+[a-zA-Z]{2,}))$', '');
+  return formDef?.replace(/\x83\n|\n|\s\s+/g, '');
+}
+/*
+  Newer Clean up - Replace backslashes that are not followed by valid json escape characters
+  function cleanUp(content) {
+    return content.replace(/\\/g, (match, offset, string) => {
+      const prevChar = string[offset - 1];
+      const nextChar = string[offset + 1];
+      const validEscapeChars = ['b', 'f', 'n', 'r', 't', '"', '\\'];
+      if (validEscapeChars.includes(nextChar) || prevChar === '\\') {
+        return match;
+      }
+      return '';
+    });
+  }
+*/
+
+function decode(rawContent) {
+  const content = rawContent.trim();
+  if (content.startsWith('"') && content.endsWith('"')) {
+    // In the new 'jsonString' context, Server side code comes as a string with escaped characters,
+    // hence the double parse
+    return JSON.parse(JSON.parse(content));
+  }
+  return JSON.parse(cleanUp(content));
+}
+
+function extractFormDefinition(block) {
+  let formDef;
+  const container = block.querySelector('pre');
+  const codeEl = container?.querySelector('code');
+  const content = codeEl?.textContent;
+  if (content) {
+    formDef = decode(content);
+  }
+  return { container, formDef };
+}
+
+export async function fetchForm(pathname) {
+  // get the main form
+  let data;
+  let path = pathname;
+  if (path.startsWith(window.location.origin) && !path.includes('.json')) {
+    if (path.endsWith('.html')) {
+      path = path.substring(0, path.lastIndexOf('.html'));
+    }
+    path += '/jcr:content/root/section/form.html';
+  }
+  let resp = await fetch(path);
+
+  if (resp?.headers?.get('Content-Type')?.includes('application/json')) {
+    data = await resp.json();
+  } else if (resp?.headers?.get('Content-Type')?.includes('text/html')) {
+    resp = await fetch(path);
+    data = await resp.text().then((html) => {
+      try {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        if (doc) {
+          return extractFormDefinition(doc.body).formDef;
+        }
+        return doc;
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Unable to fetch form definition for path', pathname, path);
+        return null;
+      }
+    });
+  }
+  return data;
+}
+
+function addRequestContextToForm(formDef) {
+  if (formDef && typeof formDef === 'object') {
+    formDef.properties = formDef.properties || {};
+
+    // Add URL parameters
+    try {
+      const urlParams = new URLSearchParams(window?.location?.search || '');
+      if (!formDef.properties.queryParams) {
+        formDef.properties.queryParams = {};
+      }
+      urlParams?.forEach((value, key) => {
+        formDef.properties.queryParams[key?.toLowerCase()] = value;
+      });
+    } catch (e) {
+      console.warn('Error reading URL parameters:', e);
+    }
+
+    // Add cookies
+    try {
+      const cookies = document?.cookie.split(';');
+      formDef.properties.cookies = {};
+      cookies?.forEach((cookie) => {
+        if (cookie.trim()) {
+          const [key, value] = cookie.trim().split('=');
+          formDef.properties.cookies[key.trim()] = value || '';
         }
       });
-    }, { threshold: 0 });
+    } catch (e) {
+      console.warn('Error reading cookies:', e);
+    }
+  }
+}
 
-    observer.observe(block);
+function loadFormCustomStyles(formDef) {
+  const { style } = formDef?.properties || {};
+  if (style) {
+    try {
+      const base = (window.hlx?.codeBasePath || '').replace(/\/$/, '');
+      const stylePath = style.startsWith('/') ? style : `/${style}`;
+      loadCSS(`${base}${stylePath}`);
+    } catch (error) {
+      console.error('Failed to load form CSS:', error);
+    }
+  }
+}
+
+export default async function decorate(block) {
+  let container = block.querySelector('a[href]');
+  let formDef;
+  let pathname;
+  if (container) {
+    ({ pathname } = new URL(container.href));
+    formDef = await fetchForm(container.href);
   } else {
-    // eslint-disable-next-line no-console
-    console.error('Unable to create form without source');
-    block.parentElement.remove();
+    ({ container, formDef } = extractFormDefinition(block));
+  }
+  let source = 'aem';
+  let rules = true;
+  let form;
+  if (formDef) {
+    const submitProps = formDef?.properties?.['fd:submit'];
+    const actionType = submitProps?.actionName || formDef?.properties?.actionType;
+    const spreadsheetUrl = submitProps?.spreadsheet?.spreadsheetUrl
+      || formDef?.properties?.spreadsheetUrl;
+
+    if (actionType === 'spreadsheet' && spreadsheetUrl) {
+      // Check if we're in an iframe and use parent window path if available
+      const iframePath = window.frameElement ? window.parent.location.pathname
+        : window.location.pathname;
+      formDef.action = SUBMISSION_SERVICE + btoa(pathname || iframePath);
+    } else {
+      formDef.action = getSubmitBaseUrl() + (formDef.action || '');
+    }
+    if (isDocumentBasedForm(formDef)) {
+      const transform = new DocBasedFormToAF();
+      formDef = transform.transform(formDef, { block });
+      source = 'sheet';
+      loadFormCustomStyles(formDef);
+      const response = await createForm(formDef, null, source);
+      form = response?.form;
+      const docRuleEngine = await import('./rules-doc/index.js');
+      docRuleEngine.default(formDef, form);
+      rules = false;
+    } else {
+      loadFormCustomStyles(formDef);
+      afModule = await import('./rules/index.js');
+      addRequestContextToForm(formDef);
+      if (afModule && afModule.initAdaptiveForm && !block.classList.contains('edit-mode')) {
+        form = await afModule.initAdaptiveForm(formDef, createForm);
+      } else {
+        form = await createFormForAuthoring(formDef);
+      }
+    }
+    form.dataset.redirectUrl = formDef.redirectUrl || '';
+    form.dataset.thankYouMsg = formDef.thankYouMsg || '';
+    form.dataset.action = formDef.action || pathname?.split('.json')[0];
+    form.dataset.source = source;
+    form.dataset.rules = rules;
+    form.dataset.id = formDef.id;
+    if (source === 'aem' && formDef.properties && formDef.properties['fd:path']) {
+      form.dataset.formpath = formDef.properties['fd:path'];
+    }
+    container.replaceWith(form);
   }
 }
