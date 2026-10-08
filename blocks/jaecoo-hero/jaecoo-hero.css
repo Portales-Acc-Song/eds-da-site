@@ -1,0 +1,313 @@
+/* ─── JAECOO Hero — variables ─────────────────────────────────────── */
+.jaecoo-hero {
+  --hero-min-h: 640px;
+  --hero-accent: #0c0c0c;
+  --hero-text: #fff;
+  --hero-pill-bg: rgba(255, 255, 255, 0.18);
+  --hero-btn-soft-bg: rgba(232, 237, 241, 0.16);
+  --hero-btn-soft-hover: rgba(232, 237, 241, 0.26);
+}
+
+/* ─── Full-bleed: break out of EDS section max-width ─────────────── */
+.section:has(.jaecoo-hero),
+.jaecoo-hero-wrapper {
+  padding: 0 !important;
+  max-width: none !important;
+}
+
+/* ─── Block container ─────────────────────────────────────────────── */
+.jaecoo-hero {
+  position: relative;
+  background: var(--hero-accent);
+  overflow: hidden;
+  min-height: var(--hero-min-h);
+  height: 100svh;
+  line-height: 0;
+  width: 100%;
+}
+
+/* top-gradient to keep nav icons readable */
+.jaecoo-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 130px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.35), transparent);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ─── Background image ────────────────────────────────────────────── */
+.jaecoo-hero picture:first-of-type {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.jaecoo-hero-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 33%;
+  display: block;
+}
+
+/* ─── Car cutout ──────────────────────────────────────────────────── */
+.jaecoo-hero picture:nth-of-type(2) {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.jaecoo-hero-cutout {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* ─── Wordmark ────────────────────────────────────────────────────── */
+.jaecoo-hero .jaecoo-hero-wordmark {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  color: var(--hero-text);
+  font-family: var(--font-family-display, var(--ff-display, sans-serif));
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+
+  /* mobile: viewport-relative sizing matching prototype */
+  top: 38.46vw;
+  left: -4.1vw;
+  width: 108.72vw;
+  height: 16.15vw;
+  font-size: 16.41vw;
+  line-height: 0.8;
+}
+
+/* ─── Gradient scrim ──────────────────────────────────────────────── */
+.jaecoo-hero-scrim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 64svh;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.95) 100%);
+}
+
+/* ─── Visually-hidden H1 ──────────────────────────────────────────── */
+.jaecoo-hero-h1 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ─── Buybox ──────────────────────────────────────────────────────── */
+.jaecoo-hero-buybox {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 0 20px calc(26px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+  color: var(--hero-text);
+  line-height: normal;
+}
+
+/* ─── Pill ────────────────────────────────────────────────────────── */
+.jaecoo-hero-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 38px;
+  padding: 0 16px;
+  background: var(--hero-pill-bg);
+  border: 0;
+  border-radius: 999px;
+  color: var(--hero-text);
+  font-size: 12px;
+  font-weight: 500;
+  backdrop-filter: blur(36px);
+  white-space: nowrap;
+}
+
+.jaecoo-hero-eco0 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2ea6e0;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ─── Price ───────────────────────────────────────────────────────── */
+.jaecoo-hero-price {
+  font-size: clamp(28px, 6vw, 44px);
+  font-weight: 700;
+  font-family: var(--font-family-display, sans-serif);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+/* ─── Stats row ───────────────────────────────────────────────────── */
+.jaecoo-hero-stats {
+  display: flex;
+  width: 100%;
+  gap: 0;
+}
+
+.jaecoo-hero-stats > div {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0 10px;
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.jaecoo-hero-stats > div:first-child {
+  border-left: none;
+  padding-left: 0;
+}
+
+.jaecoo-hero-stats b {
+  font-size: clamp(16px, 4vw, 22px);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.jaecoo-hero-stats span {
+  font-size: 11px;
+  opacity: 0.75;
+  line-height: 1.3;
+}
+
+/* ─── CTAs ────────────────────────────────────────────────────────── */
+.jaecoo-hero-ctas {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.jaecoo-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 15px 22px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--font-family-heading, sans-serif);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1;
+}
+
+.jaecoo-btn-fill {
+  background: #fff;
+  color: #0c0c0c;
+}
+
+.jaecoo-btn-fill:hover {
+  background: #e8edee;
+}
+
+.jaecoo-btn-soft {
+  background: var(--hero-btn-soft-bg);
+  color: var(--hero-text);
+  border: 0;
+  backdrop-filter: blur(4px);
+}
+
+.jaecoo-btn-soft:hover {
+  background: var(--hero-btn-soft-hover);
+}
+
+/* ─── Scroll arrow ────────────────────────────────────────────────── */
+.jaecoo-hero-arrow {
+  display: flex;
+  justify-content: center;
+  opacity: 0.7;
+  animation: jaecoo-hero-bounce 2s ease-in-out infinite;
+}
+
+@keyframes jaecoo-hero-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+
+/* ─── Desktop (≥ 560 px) ──────────────────────────────────────────── */
+@media (min-width: 560px) {
+  .jaecoo-hero {
+    height: 100vh;
+    min-height: 600px;
+  }
+
+  .jaecoo-hero-bg,
+  .jaecoo-hero-cutout {
+    position: absolute;
+    inset: 0;
+    object-fit: cover;
+    object-position: center 33%;
+  }
+
+  .jaecoo-hero .jaecoo-hero-wordmark {
+    top: 8%;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: auto;
+    font-size: clamp(64px, 8vw, 140px);
+    line-height: 0.9;
+  }
+
+  .jaecoo-hero-scrim {
+    height: 52%;
+  }
+
+  .jaecoo-hero-buybox {
+    max-width: 620px;
+    padding-bottom: 48px;
+  }
+
+  .jaecoo-hero-ctas {
+    flex-direction: row;
+  }
+
+  .jaecoo-hero-arrow {
+    display: none;
+  }
+}

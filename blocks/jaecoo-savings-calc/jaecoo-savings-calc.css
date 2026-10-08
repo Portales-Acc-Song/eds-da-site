@@ -1,0 +1,207 @@
+/* ─── JAECOO Savings Calculator ───────────────────────────────────── */
+
+.section:has(.jaecoo-savings-calc),
+.jaecoo-savings-calc-wrapper {
+  padding: 0 !important;
+  max-width: none !important;
+}
+
+.jaecoo-savings-calc {
+  background: #fff;
+  color: #0c0c0c;
+}
+
+.jsc-wrap {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 64px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* ─── Header ──────────────────────────────────────────────────────── */
+.jsc-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.jsc-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #c8a96e;
+  font-weight: 600;
+  margin: 0;
+}
+
+.jsc-heading {
+  font-size: clamp(26px, 6vw, 40px);
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.jsc-intro {
+  font-size: 15px;
+  color: rgba(0, 0, 0, 0.6);
+  margin: 0;
+  line-height: 1.55;
+}
+
+/* ─── Body ────────────────────────────────────────────────────────── */
+.jsc-body {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+/* ─── Sliders ─────────────────────────────────────────────────────── */
+.jsc-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.jsc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.jsc-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0c0c0c;
+}
+
+.jsc-val {
+  font-size: 16px;
+  font-weight: 700;
+  color: #4fb3c0;
+  font-variant-numeric: tabular-nums;
+}
+
+.jsc-range {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: #e5e7eb;
+  cursor: pointer;
+  accent-color: #4fb3c0;
+}
+
+.jsc-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4fb3c0;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(79, 179, 192, 0.4);
+  transition: transform 0.1s;
+}
+
+.jsc-range::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.jsc-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: #4fb3c0;
+  cursor: pointer;
+}
+
+.jsc-range-marks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+/* ─── Results ─────────────────────────────────────────────────────── */
+.jsc-results {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.jsc-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 20px;
+  background: #f7f7f5;
+  border-radius: 8px;
+  gap: 6px;
+}
+
+.jsc-result--main {
+  background: #0c0c0c;
+  color: #fff;
+}
+
+.jsc-result-val {
+  font-size: clamp(28px, 7vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.jsc-result--main .jsc-result-val { color: #4fb3c0; }
+
+.jsc-result-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+  font-weight: 600;
+}
+
+/* ─── Disclaimer & CTA ────────────────────────────────────────────── */
+.jsc-disclaimer {
+  font-size: 11.5px;
+  color: rgba(0, 0, 0, 0.45);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.jsc-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 32px;
+  background: #0c0c0c;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.jsc-cta:hover { background: #2a2a2a; }
+
+/* ─── Desktop ─────────────────────────────────────────────────────── */
+@media (min-width: 640px) {
+  .jsc-wrap {
+    padding: 80px 48px;
+  }
+
+  .jsc-results {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}

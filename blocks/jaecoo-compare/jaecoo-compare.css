@@ -1,0 +1,134 @@
+/* ─── JAECOO Compare ──────────────────────────────────────────────── */
+
+.section:has(.jaecoo-compare),
+.jaecoo-compare-wrapper {
+  padding: 0 !important;
+  max-width: none !important;
+}
+
+.jaecoo-compare {
+  background: #f7f7f5;
+  color: #0c0c0c;
+}
+
+.jcmp-wrap {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 64px 20px;
+}
+
+.jcmp-header {
+  margin-bottom: 36px;
+}
+
+.jcmp-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #c8a96e;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.jcmp-heading {
+  font-size: clamp(24px, 5vw, 36px);
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+/* ─── Table wrapper (horizontal scroll on mobile) ─────────────────── */
+.jcmp-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+}
+
+.jcmp-table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* ─── Header row ──────────────────────────────────────────────────── */
+.jcmp-th-feat,
+.jcmp-th-col {
+  padding: 16px 14px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 700;
+  border-bottom: 2px solid #e5e7eb;
+  position: relative;
+}
+
+.jcmp-th-col {
+  text-align: center;
+  vertical-align: bottom;
+}
+
+.jcmp-th-feat {
+  color: rgba(0, 0, 0, 0.45);
+  font-weight: 500;
+  width: 35%;
+}
+
+/* ─── Highlighted column ──────────────────────────────────────────── */
+.jcmp-col--highlight {
+  background: rgba(79, 179, 192, 0.07);
+}
+
+.jcmp-th-col.jcmp-col--highlight {
+  color: #0c0c0c;
+  border-bottom-color: #4fb3c0;
+}
+
+.jcmp-badge {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #4fb3c0;
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin: 0 auto 6px;
+  width: fit-content;
+}
+
+/* ─── Body rows ───────────────────────────────────────────────────── */
+.jcmp-td-feat,
+.jcmp-td {
+  padding: 14px 14px;
+  font-size: 14px;
+  border-bottom: 1px solid #f0f0ee;
+}
+
+.jcmp-td-feat {
+  color: rgba(0, 0, 0, 0.65);
+  font-weight: 500;
+}
+
+.jcmp-td {
+  text-align: center;
+  font-weight: 600;
+}
+
+tr:last-child .jcmp-td-feat,
+tr:last-child .jcmp-td {
+  border-bottom: none;
+}
+
+.jcmp-yes { color: #3fbf6a; display: inline-flex; align-items: center; }
+.jcmp-no  { color: #d0445a; display: inline-flex; align-items: center; }
+.jcmp-na  { color: rgba(0, 0, 0, 0.3); }
+
+/* ─── Desktop ─────────────────────────────────────────────────────── */
+@media (min-width: 640px) {
+  .jcmp-wrap {
+    padding: 80px 48px;
+  }
+}

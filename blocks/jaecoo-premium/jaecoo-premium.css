@@ -1,0 +1,109 @@
+/* ─── JAECOO Premium — editorial dark panel ───────────────────────── */
+
+.section:has(.jaecoo-premium),
+.jaecoo-premium-wrapper {
+  padding: 0 !important;
+  max-width: none !important;
+}
+
+.jaecoo-premium {
+  background: #0d1117;
+  color: #fff;
+  overflow: hidden;
+}
+
+.jpr-wrap {
+  display: flex;
+  flex-direction: column;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 64px 20px;
+  gap: 40px;
+  align-items: center;
+}
+
+/* ─── Content ─────────────────────────────────────────────────────── */
+.jpr-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 560px;
+  width: 100%;
+}
+
+.jpr-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #c8a96e;
+  font-weight: 600;
+  margin: 0;
+}
+
+.jpr-heading {
+  font-size: clamp(28px, 6vw, 48px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: #fff;
+}
+
+.jpr-body {
+  font-size: 15px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0;
+}
+
+.jpr-body p { margin: 0 0 12px; }
+.jpr-body p:last-child { margin-bottom: 0; }
+
+.jpr-cta {
+  align-self: flex-start;
+  padding: 14px 28px;
+  background: #fff;
+  color: #0c0c0c;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s;
+  width: auto;
+}
+
+.jpr-cta:hover { background: #e8edee; }
+
+/* ─── Image ───────────────────────────────────────────────────────── */
+.jpr-image {
+  width: 100%;
+  max-width: 560px;
+}
+
+.jpr-image picture,
+.jpr-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* ─── Desktop ─────────────────────────────────────────────────────── */
+@media (min-width: 768px) {
+  .jpr-wrap {
+    flex-direction: row;
+    align-items: center;
+    padding: 96px 64px;
+    gap: 64px;
+  }
+
+  .jpr-content {
+    flex: 1;
+    max-width: none;
+  }
+
+  .jpr-image {
+    flex: 1;
+    max-width: none;
+  }
+}

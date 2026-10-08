@@ -1,0 +1,135 @@
+/* ─── JAECOO Color Selector ───────────────────────────────────────── */
+
+.section:has(.jaecoo-color-selector),
+.jaecoo-color-selector-wrapper {
+  padding: 0 !important;
+  max-width: none !important;
+}
+
+.jaecoo-color-selector {
+  background: #f7f7f5;
+  color: #0c0c0c;
+  overflow: hidden;
+}
+
+.jco-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 64px 20px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* ─── Header ──────────────────────────────────────────────────────── */
+.jco-header {
+  text-align: center;
+  margin-bottom: 32px;
+  width: 100%;
+}
+
+.jco-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #c8a96e;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.jco-heading {
+  font-size: clamp(24px, 5vw, 38px);
+  font-weight: 800;
+  margin: 0 0 6px;
+  letter-spacing: -0.02em;
+}
+
+.jco-color-name {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.55);
+  margin: 0;
+  min-height: 20px;
+  transition: opacity 0.2s;
+}
+
+/* ─── Stage ───────────────────────────────────────────────────────── */
+.jco-stage {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  aspect-ratio: 16 / 9;
+  margin-bottom: 32px;
+}
+
+.jco-car {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.jco-car--active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.jco-car picture,
+.jco-car img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.jco-car-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+}
+
+/* ─── Swatches ────────────────────────────────────────────────────── */
+.jco-swatches {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding-bottom: 48px;
+}
+
+.jco-swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: var(--swatch-color);
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  outline-offset: 3px;
+}
+
+.jco-swatch:hover {
+  transform: scale(1.12);
+}
+
+.jco-swatch--active {
+  border-color: #0c0c0c;
+  transform: scale(1.18);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* ─── Desktop ─────────────────────────────────────────────────────── */
+@media (min-width: 768px) {
+  .jco-wrap {
+    padding: 80px 64px 64px;
+  }
+
+  .jco-swatch {
+    width: 44px;
+    height: 44px;
+  }
+}
