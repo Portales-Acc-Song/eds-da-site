@@ -127,7 +127,7 @@ function convertDABlocks(main) {
   main.querySelectorAll('div.columns').forEach((block) => {
     const firstRow = block.querySelector(':scope > div:first-child');
     if (!firstRow) return;
-    const nameEl = firstRow.querySelector(':scope > div:first-child > strong:only-child');
+    const nameEl = firstRow.querySelector(':scope > div:first-child strong');
     if (!nameEl) return;
     const blockName = nameEl.textContent.trim().toLowerCase().replace(/\s+/g, '-');
     if (!blockName) return;
