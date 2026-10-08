@@ -116,11 +116,53 @@ function decorateButtons(main) {
 }
 
 /**
+ * Converts DA-authored HTML tables to EDS block divs.
+ * DA serves content as <table> elements; aem.js expects div-based block structure.
+ * @param {Element} main The main element
+ */
+function convertDATables(main) {
+  main.querySelectorAll('table').forEach((table) => {
+    const rows = [...table.querySelectorAll(':scope > tbody > tr, :scope > tr')];
+    if (!rows.length) return;
+
+    const nameCell = rows[0].querySelector('td, th');
+    if (!nameCell) return;
+    const blockName = nameCell.textContent.trim().toLowerCase()
+      .replace(/[()]/g, '').trim().replace(/\s+/g, '-');
+    if (!blockName) return;
+
+    const block = document.createElement('div');
+    block.className = blockName;
+
+    rows.slice(1).forEach((row) => {
+      const rowDiv = document.createElement('div');
+      [...row.querySelectorAll(':scope > td, :scope > th')].forEach((cell) => {
+        const cellDiv = document.createElement('div');
+        cellDiv.innerHTML = cell.innerHTML;
+        rowDiv.append(cellDiv);
+      });
+      block.append(rowDiv);
+    });
+
+    // Wrap in a section div if the table is a direct child of main
+    const parent = table.parentElement;
+    if (parent === main) {
+      const sectionDiv = document.createElement('div');
+      table.replaceWith(sectionDiv);
+      sectionDiv.append(block);
+    } else {
+      table.replaceWith(block);
+    }
+  });
+}
+
+/**
  * Decorates the main element.
  * @param {Element} main The main element
  */
 // eslint-disable-next-line import/prefer-default-export
 export function decorateMain(main) {
+  convertDATables(main);
   decorateIcons(main);
   buildAutoBlocks(main);
   decorateSections(main);
