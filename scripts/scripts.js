@@ -122,7 +122,8 @@ function decorateButtons(main) {
  */
 function convertDATables(main) {
   main.querySelectorAll('table').forEach((table) => {
-    const rows = [...table.querySelectorAll(':scope > tbody > tr, :scope > tr')];
+    // querySelectorAll('tr') captures thead/tbody/tfoot rows in document order
+    const rows = [...table.querySelectorAll('tr')];
     if (!rows.length) return;
 
     const nameCell = rows[0].querySelector('td, th');
@@ -134,9 +135,10 @@ function convertDATables(main) {
     const block = document.createElement('div');
     block.className = blockName;
 
+    // All rows after the first are content rows
     rows.slice(1).forEach((row) => {
       const rowDiv = document.createElement('div');
-      [...row.querySelectorAll(':scope > td, :scope > th')].forEach((cell) => {
+      [...row.querySelectorAll('td, th')].forEach((cell) => {
         const cellDiv = document.createElement('div');
         cellDiv.innerHTML = cell.innerHTML;
         rowDiv.append(cellDiv);
