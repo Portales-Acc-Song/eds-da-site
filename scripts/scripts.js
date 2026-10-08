@@ -116,45 +116,23 @@ function decorateButtons(main) {
 }
 
 /**
- * Converts DA-authored HTML tables to EDS block divs.
- * DA serves content as <table> elements; aem.js expects div-based block structure.
+ * Converts DA block wrappers to named EDS block divs.
+ *
+ * DA serves block tables as <div class="columns"> with the block name
+ * in a <strong> element inside the first child row. This function renames
+ * the wrapper class to the actual block name and removes the name row.
  * @param {Element} main The main element
  */
-function convertDATables(main) {
-  main.querySelectorAll('table').forEach((table) => {
-    // querySelectorAll('tr') captures thead/tbody/tfoot rows in document order
-    const rows = [...table.querySelectorAll('tr')];
-    if (!rows.length) return;
-
-    const nameCell = rows[0].querySelector('td, th');
-    if (!nameCell) return;
-    const blockName = nameCell.textContent.trim().toLowerCase()
-      .replace(/[()]/g, '').trim().replace(/\s+/g, '-');
+function convertDABlocks(main) {
+  main.querySelectorAll('div.columns').forEach((block) => {
+    const firstRow = block.querySelector(':scope > div:first-child');
+    if (!firstRow) return;
+    const nameEl = firstRow.querySelector(':scope > div:first-child > strong:only-child');
+    if (!nameEl) return;
+    const blockName = nameEl.textContent.trim().toLowerCase().replace(/\s+/g, '-');
     if (!blockName) return;
-
-    const block = document.createElement('div');
     block.className = blockName;
-
-    // All rows after the first are content rows
-    rows.slice(1).forEach((row) => {
-      const rowDiv = document.createElement('div');
-      [...row.querySelectorAll('td, th')].forEach((cell) => {
-        const cellDiv = document.createElement('div');
-        cellDiv.innerHTML = cell.innerHTML;
-        rowDiv.append(cellDiv);
-      });
-      block.append(rowDiv);
-    });
-
-    // Wrap in a section div if the table is a direct child of main
-    const parent = table.parentElement;
-    if (parent === main) {
-      const sectionDiv = document.createElement('div');
-      table.replaceWith(sectionDiv);
-      sectionDiv.append(block);
-    } else {
-      table.replaceWith(block);
-    }
+    firstRow.remove();
   });
 }
 
@@ -164,7 +142,7 @@ function convertDATables(main) {
  */
 // eslint-disable-next-line import/prefer-default-export
 export function decorateMain(main) {
-  convertDATables(main);
+  convertDABlocks(main);
   decorateIcons(main);
   buildAutoBlocks(main);
   decorateSections(main);
